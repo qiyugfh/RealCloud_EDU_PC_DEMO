@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+.vs
+*.log
+txsdklog/
+GeneratedFiles/
+Win32/
+*.opendb
+Debug/
