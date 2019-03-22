@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RealCloud_EDU_PC_DEMO.cpp" />
+    <ClCompile Include="VideoRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="RealCloud_EDU_PC_DEMO.h" />
@@ -123,6 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="RealCloud_EDU_PC_DEMO.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="VideoRender.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(SolutionDir)TICSDK\include\BoardSDK;$(SolutionDir)TICSDK\include\iLiveSDK;$(SolutionDir)TICSDK\include\TICSDK;$(SolutionDir)TICSDK\include\IMSDK;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtXml</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtXml</IncludePath>
+    </QtMoc>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

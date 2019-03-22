@@ -4,6 +4,7 @@
 #include "ui_RealCloud_EDU_PC_DEMO.h"
 
 #include "TICSDK.h"
+#include "VideoRender.h"
 
 
 class RealCloud_EDU_PC_DEMO : public QMainWindow, public IClassroomEventListener, public IClassroomIMListener, public IClassroomRecordEventListener
@@ -12,32 +13,15 @@ class RealCloud_EDU_PC_DEMO : public QMainWindow, public IClassroomEventListener
 
 public:
 	RealCloud_EDU_PC_DEMO(QWidget *parent = Q_NULLPTR);
+	~RealCloud_EDU_PC_DEMO();
 
 	void  loadWhiteBoard();
 	void  enterClassRoom();
 	void  exitClassRoom();
 
+	VideoRender *getLocalVideoRender();
 
 private:
-
-	static void onSendTIMMsgSuccess(void* data);
-
-	static void onSendTIMMsgError(int code, const char* desc, void* data);
-
-	static void onIliveSucCallback(void *data);
-
-	static void onIliveErrCallback(const int code, const char *desc, void* data);
-
-	static void onLocalVideo(const ilive::LiveVideoFrame* videoFrame, void* customData);
-
-	static void onDeviceOperation(ilive::E_DeviceOperationType oper, int retCode, void* data);
-
-	static void onForceOffline();
-
-	static void onNetworkConnect();
-
-	static void onNetworkDisconn();
-
 
 	void onLiveVideoDisconnect(int reason, const char *errorinfo, void* data) override;
 
@@ -71,12 +55,33 @@ private:
 
 	void onFileInfoChanged() override;
 
+
+	static void onSendTIMMsgSuccess(void* data);
+
+	static void onSendTIMMsgError(int code, const char* desc, void* data);
+
+	static void onIliveSucCallback(void *data);
+
+	static void onIliveErrCallback(const int code, const char *desc, void* data);
+
+	static void onLocalVideo(const ilive::LiveVideoFrame* videoFrame, void* customData);
+
+	static void onDeviceOperation(ilive::E_DeviceOperationType oper, int retCode, void* data);
+
+	static void onForceOffline();
+
+	static void onNetworkConnect();
+
+	static void onNetworkDisconn();
+
+
 private:
 	Ui::RealCloud_EDU_PC_DEMOClass ui;
 
 	TICManager *m_sdk;
 	TICClassroomOption m_opt;
-	ilive::iLiveRootView*	m_pRootView;
+	VideoRender *m_videoRender;
+
 	QString m_sdkappId;
 	QString m_userId;
 	QString m_userToken;

@@ -1,5 +1,7 @@
 #include "RealCloud_EDU_PC_DEMO.h"
 #include <qDebug>
+#include <QVBoxLayout>
+#include <QLabel>
 
 #define USER_TOKEN_1 "eJxNjttOg0AQht*Fa2P3ACyY9AIainJQW23FpslmhYWsRorLQrHGd3dLaOLcTPJ9M-PPj-GcPF2zPD90taLqu*HG" \
 		"jQGMqxGLgtdKlIJLDbuWS1FQCHS52MIOdimcBlnTaMUUxbL4t98WH3RUmkETAIiIbpPkQyMkp6xU43mIXFtfnmTPZSsOteYIQAs" \
@@ -14,6 +16,18 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 	ui.setupUi(this);
 
 	qDebug("init mainwindow ...");
+
+	QVBoxLayout *vLayout = new QVBoxLayout(ui.centralWidget);
+	QLabel *label = new QLabel(QString::fromLocal8Bit("ÉãÏñÍ·"));
+	m_videoRender = new VideoRender();
+	vLayout->addWidget(label);
+	vLayout->addWidget(m_videoRender);
+
+
+	m_videoRender->setStyleSheet("background:red");
+	m_videoRender->show();
+	label->setFixedSize(100, 20);
+	label->setStyleSheet("background:yellow");
 
 	m_sdk = TICManager::GetTICManager();
 	m_opt.setClassroomEventListener(this);
@@ -35,7 +49,12 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 	m_opt.setRoomID(m_roomId.toInt());
 
 	// µÇÂ½
-	m_sdk->login(m_userId.toStdString().c_str(), m_userToken.toStdString().c_str(), onIliveSucCallback, onIliveErrCallback, this);
+	int ret = -1;
+	ret = m_sdk->login(m_userId.toStdString().c_str(), m_userToken.toStdString().c_str(), onIliveSucCallback, onIliveErrCallback, this);
+	if(ret != 0)
+	{
+		qDebug("login fail ...");
+	}
 
 	ilive::iLiveRoomOption roomOption;
 	roomOption.audioCategory = ilive::AUDIO_CATEGORY_MEDIA_PLAY_AND_RECORD;
@@ -51,9 +70,13 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 
 	m_sdk->joinClassroom(m_opt, onIliveSucCallback, onIliveErrCallback, this);
 
-	m_pRootView = ilive::iLiveCreateRootView();
-	m_pRootView->init((HWND)ui.selfWidget->winId());
-	m_pRootView->setBackgroundColor(0xFF000000);
+
+}
+
+
+RealCloud_EDU_PC_DEMO::~RealCloud_EDU_PC_DEMO()
+{
+
 }
 
 void RealCloud_EDU_PC_DEMO::loadWhiteBoard()
@@ -69,6 +92,11 @@ void RealCloud_EDU_PC_DEMO::enterClassRoom()
 
 void RealCloud_EDU_PC_DEMO::exitClassRoom()
 {
+}
+
+VideoRender * RealCloud_EDU_PC_DEMO::getLocalVideoRender()
+{
+	return m_videoRender;
 }
 
 void RealCloud_EDU_PC_DEMO::onSendTIMMsgSuccess(void * data)
@@ -94,8 +122,11 @@ void RealCloud_EDU_PC_DEMO::onIliveErrCallback(const int code, const char * desc
 void RealCloud_EDU_PC_DEMO::onLocalVideo(const ilive::LiveVideoFrame *videoFrame, void *customData)
 {
 	qDebug("callback onLocalVideo ...");
+	RealCloud_EDU_PC_DEMO *widget = (RealCloud_EDU_PC_DEMO *)customData;
 
-	//videoFrame
+	E_VideoSrc srcType = videoFrame->desc.srcType;
+	widget->getLocalVideoRender()->doRender(videoFrame);
+
 }
 
 void RealCloud_EDU_PC_DEMO::onDeviceOperation(ilive::E_DeviceOperationType oper, int retCode, void * data)

@@ -36,9 +36,15 @@
     <ClCompile Include="RealCloud_EDU_PC_DEMO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VideoRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="RealCloud_EDU_PC_DEMO.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="VideoRender.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
