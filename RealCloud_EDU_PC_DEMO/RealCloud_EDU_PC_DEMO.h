@@ -7,6 +7,15 @@
 #include "VideoRender.h"
 
 
+enum LiveOperation
+{
+	NONE,
+	LOGIN,
+	LOGOUT,
+	ENTER_ROOM,
+	EXIT_ROOM
+};
+
 class RealCloud_EDU_PC_DEMO : public QMainWindow, public IClassroomEventListener, public IClassroomIMListener, public IClassroomRecordEventListener
 {
 	Q_OBJECT
@@ -20,6 +29,8 @@ public:
 	void  exitClassRoom();
 
 	VideoRender *getLocalVideoRender();
+
+	VideoRender *getRemoteVideoRender();
 
 private:
 
@@ -56,6 +67,9 @@ private:
 	void onFileInfoChanged() override;
 
 
+
+private:
+
 	static void onSendTIMMsgSuccess(void* data);
 
 	static void onSendTIMMsgError(int code, const char* desc, void* data);
@@ -66,6 +80,8 @@ private:
 
 	static void onLocalVideo(const ilive::LiveVideoFrame* videoFrame, void* customData);
 
+	static void onRemoteVideo(const ilive::LiveVideoFrame* videoFrame, void* customData);
+
 	static void onDeviceOperation(ilive::E_DeviceOperationType oper, int retCode, void* data);
 
 	static void onForceOffline();
@@ -75,12 +91,21 @@ private:
 	static void onNetworkDisconn();
 
 
+private slots:
+
+	void login();
+
+	void joinClassroom();
+
+
 private:
 	Ui::RealCloud_EDU_PC_DEMOClass ui;
 
 	TICManager *m_sdk;
 	TICClassroomOption m_opt;
 	VideoRender *m_videoRender;
+	VideoRender *m_remoteVideoRender;
+	static LiveOperation m_liveOperation;
 
 	QString m_sdkappId;
 	QString m_userId;

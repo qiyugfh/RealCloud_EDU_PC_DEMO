@@ -21,6 +21,14 @@ VideoRender::~VideoRender()
 	}
 }
 
+void VideoRender::setView(const char * userId, E_VideoSrc type)
+{
+	iLiveView view;
+	view.mode = VIEW_MODE_HIDDEN;
+	view.exclusive = true;
+	m_pRootView->setView(userId, type, view, false);
+}
+
 void VideoRender::doRender(const ilive::LiveVideoFrame * frame)
 {
 	m_pRootView->doRender(frame);
