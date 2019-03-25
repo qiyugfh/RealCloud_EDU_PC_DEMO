@@ -2,13 +2,12 @@
 #include <QPainter>
 #include <qdebug.h>
 
-
+const int ScreenWidth = 200;
 
 VideoRender::VideoRender(QWidget *parent)
 	: QWidget(parent)
 {
-	this->setFixedWidth(640);
-	this->setFixedHeight(480);
+	this->setFixedSize(ScreenWidth, ScreenWidth);
 
 	this->setAttribute(Qt::WA_StyledBackground, true);
 	this->setStyleSheet("background-color: rgb(255, 255, 255)");
@@ -58,9 +57,6 @@ void VideoRender::doRender(const ilive::LiveVideoFrame * frame)
 		bit = (uchar *)(frame->data);
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				/* Please attion the Littile-Edian and Big-Edian,
-				* The Order maybe R-G-B.
-				*/
 				b = (int)bit[i];
 				g = (int)bit[i + 1];
 				r = (int)bit[i + 2];
@@ -68,7 +64,6 @@ void VideoRender::doRender(const ilive::LiveVideoFrame * frame)
 				*point = qRgb(r, g, b);
 				i += 3;
 			}
-
 		}
 		this->update();
 	}
@@ -77,7 +72,7 @@ void VideoRender::doRender(const ilive::LiveVideoFrame * frame)
 void VideoRender::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
-	painter.drawImage(0, 0, m_image);
+	painter.drawImage(0, 0, m_image.scaled(ScreenWidth, ScreenWidth, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 

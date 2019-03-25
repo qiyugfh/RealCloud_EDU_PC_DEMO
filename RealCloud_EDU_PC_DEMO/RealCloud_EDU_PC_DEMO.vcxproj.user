@@ -3,10 +3,10 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <QTDIR>D:\Qt\Qt5.10.0\5.10.0\msvc2015</QTDIR>
-    <LocalDebuggerEnvironment>PATH=D:\Tools\Qt\Qt5.10.0\5.10.0\msvc2015\bin%3b$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3bD:\Tools\Qt\Qt5.10.0\5.10.0\msvc2015\bin%3b$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QTDIR>D:\Qt\Qt5.10.0\5.10.0\msvc2015</QTDIR>
-    <LocalDebuggerEnvironment>PATH=D:\Tools\Qt\Qt5.10.0\5.10.0\msvc2015\bin%3b$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3bD:\Tools\Qt\Qt5.10.0\5.10.0\msvc2015\bin%3b$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
 </Project>

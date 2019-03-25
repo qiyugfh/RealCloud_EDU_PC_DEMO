@@ -6,12 +6,19 @@
 #include "TICSDK.h"
 #include "VideoRender.h"
 
+#include <QPushButton>
+#include <QTextEdit>
+#include <QLineEdit>
+#include <QListWidget>
+
 
 enum LiveOperation
 {
 	NONE,
 	LOGIN,
 	LOGOUT,
+	CREATE_ROOM,
+	DESTORY_ROOM,
 	ENTER_ROOM,
 	EXIT_ROOM
 };
@@ -32,7 +39,12 @@ public:
 
 	VideoRender *getRemoteVideoRender();
 
+
 private:
+
+	void initLayout();
+
+	void initParams();
 
 	void onLiveVideoDisconnect(int reason, const char *errorinfo, void* data) override;
 
@@ -91,11 +103,40 @@ private:
 	static void onNetworkDisconn();
 
 
+signals:
+	// 消息展示
+	void showMessage(const QString &userId, const QString &msg);
+
+public slots:
+
+	void addMsgContent(const QString &userId, const QString &msg);
+
 private slots:
 
 	void onLoginBtnClicked();
-
+	void onLogoutBtnClicked();
+	void onCreateClassroomClicked();
+	void onDestoryClassroomClicked();
 	void onJoinClassroomClicked();
+	void onExitClassroomClicked();
+	void onSendMessageClicked();
+
+
+public:
+
+	QLineEdit *m_roomEdit;
+	QLineEdit *m_userEdit;
+
+	QPushButton *m_loginBtn;
+	QPushButton *m_logoutBtn;
+	QPushButton *m_createClassroomBtn;
+	QPushButton *m_destoryClassroomBtn;
+	QPushButton *m_joinClassroomBtn;
+	QPushButton *m_exitClassroomBtn;
+
+
+	QListWidget *m_msgListWgt;
+	QTextEdit *m_msgTextEdit;
 
 
 private:
@@ -103,12 +144,12 @@ private:
 
 	TICManager *m_sdk;
 	TICClassroomOption m_opt;
-	VideoRender *m_videoRender;
-	VideoRender *m_remoteVideoRender;
-	static LiveOperation m_liveOperation;
 
-	QString m_sdkappId;
+	VideoRender *m_localVideoRender;
+	VideoRender *m_remoteVideoRender;
+
 	QString m_userId;
-	QString m_userToken;
 	QString m_roomId;
+	QString m_userToken;
+	QString m_sdkappId;
 };
