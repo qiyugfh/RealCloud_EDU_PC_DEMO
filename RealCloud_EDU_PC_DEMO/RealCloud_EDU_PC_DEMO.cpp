@@ -27,14 +27,14 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 
 	QPushButton *loginBtn = new QPushButton(QString::fromLocal8Bit("登陆"));
 	QPushButton *joinClassroomBtn = new QPushButton(QString::fromLocal8Bit("加入房间"));
-	connect(loginBtn, SIGNAL(clicked()), this, SLOT(login()));
-	connect(joinClassroomBtn, SIGNAL(clicked()), this, SLOT(joinClassroom()));
+	connect(loginBtn, SIGNAL(clicked()), this, SLOT(onLoginBtnClicked()));
+	connect(joinClassroomBtn, SIGNAL(clicked()), this, SLOT(onJoinClassroomClicked()));
 
 	QHBoxLayout *hLayout = new QHBoxLayout();
 	hLayout->addWidget(loginBtn);
 	hLayout->addWidget(joinClassroomBtn);
-	loginBtn->setFixedSize(100, 20);
-	joinClassroomBtn->setFixedSize(100, 20);
+	loginBtn->setFixedSize(100, 30);
+	joinClassroomBtn->setFixedSize(100, 30);
 
 
 	QHBoxLayout *hLayout2 = new QHBoxLayout();
@@ -46,10 +46,6 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 	QVBoxLayout *vLayout = new QVBoxLayout(ui.centralWidget);
 	vLayout->addLayout(hLayout);
 	vLayout->addLayout(hLayout2);
-
-
-	m_videoRender->setStyleSheet("background:red");
-	m_videoRender->show();
 
 	m_sdk = TICManager::GetTICManager();
 	m_opt.setClassroomEventListener(this);
@@ -239,7 +235,7 @@ void RealCloud_EDU_PC_DEMO::onFileInfoChanged()
 {
 }
 
-void RealCloud_EDU_PC_DEMO::login()
+void RealCloud_EDU_PC_DEMO::onLoginBtnClicked()
 {	// 登陆
 	int ret = -1;
 	m_liveOperation = LOGIN;
@@ -252,7 +248,7 @@ void RealCloud_EDU_PC_DEMO::login()
 	qDebug("login success ...");
 }
 
-void RealCloud_EDU_PC_DEMO::joinClassroom()
+void RealCloud_EDU_PC_DEMO::onJoinClassroomClicked()
 {
 	qDebug("begin join classroom");
 	ilive::iLiveRoomOption roomOption;

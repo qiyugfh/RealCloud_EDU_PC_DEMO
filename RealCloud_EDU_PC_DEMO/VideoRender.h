@@ -1,6 +1,8 @@
 #pragma once
 #include "qwidget.h"
 #include "TICSDK.h"
+#include <QImage>
+
 
 
 class VideoRender :
@@ -15,8 +17,14 @@ public:
 	void setView(const char *userId, E_VideoSrc type);
 	void doRender(const ilive::LiveVideoFrame *frame);
 
+protected:
+	virtual void paintEvent(QPaintEvent *);
+
 
 private:
 	ilive::iLiveRootView*	m_pRootView;
+
+	QImage m_image;
+
 };
 

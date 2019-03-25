@@ -93,9 +93,9 @@ private:
 
 private slots:
 
-	void login();
+	void onLoginBtnClicked();
 
-	void joinClassroom();
+	void onJoinClassroomClicked();
 
 
 private:
