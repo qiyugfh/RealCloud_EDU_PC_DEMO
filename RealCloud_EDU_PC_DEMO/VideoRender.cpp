@@ -1,29 +1,23 @@
 #include "VideoRender.h"
-#include <QPainter>
 #include <qdebug.h>
+#include <QStyleOption>
 
-const int ScreenWidth = 200;
+
+const int ScreenWidth = 400;
 
 VideoRender::VideoRender(QWidget *parent)
-	: QWidget(parent)
+	: QWidget(parent), m_pRootView(NULL)
 {
 	this->setFixedSize(ScreenWidth, ScreenWidth);
-
 	this->setAttribute(Qt::WA_StyledBackground, true);
 	this->setStyleSheet("background-color: rgb(255, 255, 255)");
-
-	m_pRootView = ilive::iLiveCreateRootView();
-	m_pRootView->init((HWND)this->winId());
-	m_pRootView->setBackgroundColor(0xFF000000);
-
-	m_image = QImage(640, 480, QImage::Format_RGB888);
+	
+	init();
 }
-
 
 VideoRender::~VideoRender()
 {
 	if (m_pRootView != NULL) {
-
 		m_pRootView->uninit();
 		m_pRootView->destroy();
 	}
@@ -31,48 +25,38 @@ VideoRender::~VideoRender()
 
 void VideoRender::setView(const char * userId, E_VideoSrc type)
 {
+	m_userId = userId;
 	iLiveView view;
 	view.mode = VIEW_MODE_HIDDEN;
 	view.exclusive = true;
-	m_pRootView->setView(userId, type, view, false);
+	m_pRootView->setView(m_userId.toStdString().c_str(), type, view, false);
 }
 
 void VideoRender::doRender(const ilive::LiveVideoFrame * frame)
 {
-	E_ColorFormat colorFormat = frame->desc.colorFormat;
-	if (colorFormat == COLOR_FORMAT_I420)
-	{
-		m_pRootView->doRender(frame);
-	}
-	else if (colorFormat == COLOR_FORMAT_RGB24)
-	{
-		int w = frame->desc.width;
-		int h = frame->desc.height;
-
-		int i;
-		int r, g, b;
-		QRgb *point;
-		uchar *bit;
-		i = 0;
-		bit = (uchar *)(frame->data);
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				b = (int)bit[i];
-				g = (int)bit[i + 1];
-				r = (int)bit[i + 2];
-				point = (QRgb *)m_image.scanLine(y) + x;
-				*point = qRgb(r, g, b);
-				i += 3;
-			}
-		}
-		this->update();
-	}
+	assert(frame->desc.colorFormat == COLOR_FORMAT_I420);
+	m_pRootView->doRender(frame);
 }
 
-void VideoRender::paintEvent(QPaintEvent *)
+QString VideoRender::getUserId()
 {
-	QPainter painter(this);
-	painter.drawImage(0, 0, m_image.scaled(ScreenWidth, ScreenWidth, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+	return m_userId;
+}
+
+void VideoRender::init()
+{
+	if (m_pRootView == NULL)
+	{
+		m_pRootView = ilive::iLiveCreateRootView();
+		//iLiveSDK目前的渲染模块，D3D只支持I420格式，GDI只支持RGB24格式;
+		E_ColorFormat fmt = (m_pRootView->getRootViewType() == ROOT_VIEW_TYPE_D3D) ? COLOR_FORMAT_I420 : COLOR_FORMAT_RGB24;
+		GetILive()->setVideoColorFormat(fmt);
+
+		bool bRet = m_pRootView->init((HWND)this->winId());
+		assert(bRet);
+	}
+
+	m_pRootView->setBackgroundColor(0xFF000000);
 }
 
 

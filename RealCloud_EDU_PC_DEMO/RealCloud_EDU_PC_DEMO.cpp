@@ -51,7 +51,7 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 	roomLbl->setFixedHeight(30);
 
 	m_roomEdit = new QLineEdit();
-	m_roomEdit->setFixedSize(150, 30);
+	m_roomEdit->setFixedSize(200, 30);
 	m_roomEdit->setText(m_roomId);
 	QRegExp regx("[0-9]+$");
 	QValidator *validator = new QRegExpValidator(regx);
@@ -61,7 +61,7 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 	userLbl->setFixedHeight(30);
 
 	m_userEdit = new QLineEdit();
-	m_userEdit->setFixedSize(150, 30);
+	m_userEdit->setFixedSize(200, 30);
 	m_userEdit->setText(m_userId);
 
 	m_loginBtn = new QPushButton(QString::fromLocal8Bit("登陆"));
@@ -102,11 +102,11 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 
 	// 中间区域，消息显示
 	m_msgListWgt = new QListWidget();
-	m_msgListWgt->setMinimumWidth(300);
+	m_msgListWgt->setMinimumWidth(600);
 	m_msgListWgt->setStyleSheet("background-color:#99ff99");
 
 	m_msgTextEdit = new QTextEdit();
-	m_msgTextEdit->setFixedWidth(300);
+	m_msgTextEdit->setFixedWidth(600);
 	m_msgTextEdit->setFixedHeight(100);
 	m_msgTextEdit->setStyleSheet("background-color:white");
 
@@ -164,6 +164,8 @@ void RealCloud_EDU_PC_DEMO::initParams()
 	m_sdk->setForceOfflineCallback(onForceOffline);
 	// 设置网络状态监听回调
 	m_sdk->setNetworkConnCallBack(onNetworkConnect, onNetworkDisconn);
+
+
 }
 
 void RealCloud_EDU_PC_DEMO::loadWhiteBoard()
@@ -418,9 +420,11 @@ void RealCloud_EDU_PC_DEMO::onDestoryClassroomClicked()
 void RealCloud_EDU_PC_DEMO::onJoinClassroomClicked()
 {
 	qDebug("begin join classroom");
+	int roomid = m_roomEdit->text().toInt();
+
 	ilive::iLiveRoomOption roomOption;
 	roomOption.audioCategory = ilive::AUDIO_CATEGORY_MEDIA_PLAY_AND_RECORD;
-	roomOption.roomId = m_roomEdit->text().toInt();
+	roomOption.roomId = roomid;
 	roomOption.groupId = m_roomEdit->text().toStdString().c_str();
 	roomOption.joinImGroup = true;
 	roomOption.authBits = ilive::AUTH_BITS_DEFAULT;
@@ -429,6 +433,7 @@ void RealCloud_EDU_PC_DEMO::onJoinClassroomClicked()
 	roomOption.controlRole = "user";
 	//roomOption.privateMapKey = rsp.GetPrivMapEncrypt().c_str();
 	m_opt.setRoomOption(roomOption);
+	m_opt.setRoomID(roomid);
 
 	liveOperation = ENTER_ROOM;
 	m_sdk->joinClassroom(m_opt, onIliveSucCallback, onIliveErrCallback, this);
@@ -449,13 +454,17 @@ void RealCloud_EDU_PC_DEMO::onSendMessageClicked()
 
 void RealCloud_EDU_PC_DEMO::addMsgContent(const QString & userId, const QString & msg)
 {
-	QLabel *lbl = new QLabel(QString::fromLocal8Bit("%1：%2").arg(userId).arg(msg));
+	QString str = QString::fromLocal8Bit("%1：%2").arg(userId).arg(msg);
+	//QLabel *lbl = new QLabel(str);
 	//lbl->setWordWrap(true);
 	//lbl->adjustSize();
 	//lbl->setAlignment(Qt::AlignTop);
-	QListWidgetItem *item = new QListWidgetItem();
-	m_msgListWgt->addItem(item);
-	m_msgListWgt->setItemWidget(item, lbl);
+	//lbl->setFixedWidth(400);
+	//QListWidgetItem *item = new QListWidgetItem();
+	//m_msgListWgt->addItem(item);
+	//m_msgListWgt->setItemWidget(item, lbl);
+
+	m_msgListWgt->addItem(str);
 }
 
 
