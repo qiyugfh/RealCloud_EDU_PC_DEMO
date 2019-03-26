@@ -23,6 +23,12 @@ VideoRender::~VideoRender()
 	}
 }
 
+void VideoRender::clear()
+{
+	m_pRootView->removeAllView(true);
+	m_userId = "";
+}
+
 void VideoRender::setView(const char * userId, E_VideoSrc type)
 {
 	m_userId = userId;

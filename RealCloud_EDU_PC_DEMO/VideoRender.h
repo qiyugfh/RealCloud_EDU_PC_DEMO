@@ -13,7 +13,7 @@ public:
 	VideoRender(QWidget *parent = Q_NULLPTR);
 	~VideoRender();
 
-
+	void clear();
 	void setView(const char *userId, E_VideoSrc type);
 	void doRender(const ilive::LiveVideoFrame *frame);
 
