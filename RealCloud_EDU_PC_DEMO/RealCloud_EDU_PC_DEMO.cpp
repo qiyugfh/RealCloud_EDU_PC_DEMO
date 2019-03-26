@@ -19,8 +19,8 @@ static RealCloud_EDU_PC_DEMO *mainWindow = NULL;
 
 
 RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
-	: QMainWindow(parent), 
-	m_sdkappId("1400127140"), 
+	: QMainWindow(parent),
+	m_sdkappId("1400127140"),
 	m_userId("userid_100009353839_1"),
 	m_userToken(USER_TOKEN_1),
 	m_roomId("2147483640")
@@ -44,7 +44,7 @@ RealCloud_EDU_PC_DEMO::~RealCloud_EDU_PC_DEMO()
 
 }
 
-void RealCloud_EDU_PC_DEMO::initLayout() 
+void RealCloud_EDU_PC_DEMO::initLayout()
 {
 	// 左侧区域，操作按钮
 	QLabel *roomLbl = new QLabel(QString::fromLocal8Bit("房间ID"));
@@ -81,7 +81,7 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 	m_destoryClassroomBtn->setEnabled(false);
 
 	m_joinClassroomBtn = new QPushButton(QString::fromLocal8Bit("加入房间"));
-	m_joinClassroomBtn->setFixedSize(100, 30);	
+	m_joinClassroomBtn->setFixedSize(100, 30);
 	m_joinClassroomBtn->setEnabled(false);
 
 	m_exitClassroomBtn = new QPushButton(QString::fromLocal8Bit("退出房间"));
@@ -389,7 +389,7 @@ void RealCloud_EDU_PC_DEMO::onFileInfoChanged()
 }
 
 void RealCloud_EDU_PC_DEMO::onLoginBtnClicked()
-{	
+{
 	liveOperation = LOGIN;
 	m_sdk->login(m_userEdit->text().toStdString().c_str(), m_userToken.toStdString().c_str(), onIliveSucCallback, onIliveErrCallback, this);
 }
@@ -449,7 +449,13 @@ void RealCloud_EDU_PC_DEMO::onSendMessageClicked()
 
 void RealCloud_EDU_PC_DEMO::addMsgContent(const QString & userId, const QString & msg)
 {
-	m_msgListWgt->addItem(QString::fromLocal8Bit("%1：%2").arg(userId).arg(msg));
+	QLabel *lbl = new QLabel(QString::fromLocal8Bit("%1：%2").arg(userId).arg(msg));
+	//lbl->setWordWrap(true);
+	//lbl->adjustSize();
+	//lbl->setAlignment(Qt::AlignTop);
+	QListWidgetItem *item = new QListWidgetItem();
+	m_msgListWgt->addItem(item);
+	m_msgListWgt->setItemWidget(item, lbl);
 }
 
 
