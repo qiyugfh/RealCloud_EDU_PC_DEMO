@@ -38,3 +38,6 @@ GeneratedFiles/
 Win32/
 *.opendb
 Debug/
+Release/
+*.VC.db
+
