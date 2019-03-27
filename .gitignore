@@ -31,13 +31,16 @@
 *.out
 *.app
 
-.vs
-*.log
+
 txsdklog/
 GeneratedFiles/
 Win32/
-*.opendb
 Debug/
 Release/
 *.VC.db
+*VC.VC.opendb
+*.vcxproj
 *.vcxproj.*
+*.vs
+*.opendb
+*.log
