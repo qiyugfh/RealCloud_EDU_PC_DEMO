@@ -43,8 +43,10 @@ public:
 private:
 
 	void initLayout();
-
+	void initLeftWidget();
 	void initParams();
+	void bindSlots();
+
 
 	void onLiveVideoDisconnect(int reason, const char *errorinfo, void* data) override;
 
@@ -121,6 +123,13 @@ private slots:
 	void onExitClassroomClicked();
 	void onSendMessageClicked();
 
+	void onOpenCameraClicked();
+	void onCloseCameraClicked();
+	void onOpenMicClicked();
+	void onCloseMicClicked();
+	void onOpenPlayerClicked();
+	void onClosePlayerClicked();
+	
 
 public:
 
@@ -134,6 +143,13 @@ public:
 	QPushButton *m_joinClassroomBtn;
 	QPushButton *m_exitClassroomBtn;
 
+	QPushButton *m_sendMessageBtn;
+	QPushButton *m_openCameraBtn;
+	QPushButton *m_closeCameraBtn;
+	QPushButton *m_openMicBtn;
+	QPushButton *m_closeMicBtn;
+	QPushButton *m_openPlayerBtn;
+	QPushButton *m_closePlayerBtn;
 
 	QListWidget *m_msgListWgt;
 	QTextEdit *m_msgTextEdit;
@@ -152,4 +168,8 @@ private:
 	QString m_roomId;
 	QString m_userToken;
 	QString m_sdkappId;
+
+	QWidget *m_leftPannelWidget;
+
+
 };

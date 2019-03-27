@@ -2,7 +2,7 @@
 #include "qwidget.h"
 #include "TICSDK.h"
 #include <QImage>
-
+#include <QPainter>
 
 
 class VideoRender :
@@ -13,18 +13,19 @@ public:
 	VideoRender(QWidget *parent = Q_NULLPTR);
 	~VideoRender();
 
-
+	void clear();
 	void setView(const char *userId, E_VideoSrc type);
 	void doRender(const ilive::LiveVideoFrame *frame);
 
-protected:
-	virtual void paintEvent(QPaintEvent *);
+	QString getUserId();
+		
 
+private:
+	void init();
 
 private:
 	ilive::iLiveRootView*	m_pRootView;
 
-	QImage m_image;
-
+	QString m_userId;
 };
 
