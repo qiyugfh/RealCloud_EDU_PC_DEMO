@@ -6,10 +6,12 @@
 #include "TICSDK.h"
 #include "VideoRender.h"
 
+
 #include <QPushButton>
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QSpinBox>
 
 
 enum LiveOperation
@@ -44,6 +46,8 @@ private:
 
 	void initLayout();
 	void initLeftWidget();
+	void initMiddleWidget();
+	void initRightWidget();
 	void initParams();
 	void bindSlots();
 
@@ -105,6 +109,8 @@ private:
 	static void onNetworkDisconn();
 
 
+
+
 signals:
 	// 消息展示
 	void showMessage(const QString &userId, const QString &msg);
@@ -130,9 +136,13 @@ private slots:
 	void onOpenPlayerClicked();
 	void onClosePlayerClicked();
 	
+	void onOpenScreenShareClicked();
+	void onOpenScreenShareWndClicked();
+	void onChangeScreenShareClicked();
+	void onCloseScreenShareClicked();
 
 public:
-
+	// 按钮区域
 	QLineEdit *m_roomEdit;
 	QLineEdit *m_userEdit;
 
@@ -142,8 +152,6 @@ public:
 	QPushButton *m_destoryClassroomBtn;
 	QPushButton *m_joinClassroomBtn;
 	QPushButton *m_exitClassroomBtn;
-
-	QPushButton *m_sendMessageBtn;
 	QPushButton *m_openCameraBtn;
 	QPushButton *m_closeCameraBtn;
 	QPushButton *m_openMicBtn;
@@ -151,8 +159,23 @@ public:
 	QPushButton *m_openPlayerBtn;
 	QPushButton *m_closePlayerBtn;
 
+	// 通知消息
+	QPushButton *m_sendMessageBtn;
 	QListWidget *m_msgListWgt;
 	QTextEdit *m_msgTextEdit;
+
+
+	// 屏幕分享
+	QPushButton *m_openScreenShareBtn;
+	QPushButton *m_openScreenShareWndBtn;
+	QPushButton *m_changeScreenShareBtn;
+	QPushButton *m_closeScreenShareBtn;
+
+
+	QSpinBox *m_sbX0;
+	QSpinBox *m_sbX1;
+	QSpinBox *m_sbY0;
+	QSpinBox *m_sbY1;
 
 
 private:
@@ -163,6 +186,7 @@ private:
 
 	VideoRender *m_localVideoRender;
 	VideoRender *m_remoteVideoRender;
+	VideoRender *m_shareVideoRender;
 
 	QString m_userId;
 	QString m_roomId;
@@ -170,6 +194,7 @@ private:
 	QString m_sdkappId;
 
 	QWidget *m_leftPannelWidget;
-
-
+	QWidget *m_middlePannelWidget;
+	QWidget *m_rightPannelWidget;
+	uint32 m_fps;
 };

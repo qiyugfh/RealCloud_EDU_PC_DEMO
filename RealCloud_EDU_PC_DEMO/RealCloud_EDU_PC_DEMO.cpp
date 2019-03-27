@@ -6,6 +6,9 @@
 #include <QLabel>
 #include <QRegExp>
 #include <QValidator>
+#include <QGroupBox>
+#include <QDeskTopWidget>
+#include "WndList.h"
 
 
 #define USER_TOKEN_1 "eJxNjttOg0AQht*Fa2P3ACyY9AIainJQW23FpslmhYWsRorLQrHGd3dLaOLcTPJ9M-PPj-GcPF2zPD90taLqu*HG" \
@@ -23,7 +26,8 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 	m_sdkappId("1400127140"),
 	m_userId("userid_100009353839_1"),
 	m_userToken(USER_TOKEN_1),
-	m_roomId("2147483640")
+	m_roomId("2147483640"),
+	m_fps(10)
 {
 	ui.setupUi(this);
 
@@ -41,7 +45,7 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 
 RealCloud_EDU_PC_DEMO::~RealCloud_EDU_PC_DEMO()
 {
-
+	onLogoutBtnClicked();
 }
 
 void RealCloud_EDU_PC_DEMO::initLayout()
@@ -50,35 +54,15 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 	initLeftWidget();
 
 	// 中间区域，消息显示
-	m_msgListWgt = new QListWidget();
-	m_msgListWgt->setMinimumWidth(600);
-	m_msgListWgt->setStyleSheet("background-color:#99ff99");
+	initMiddleWidget();
 
-	m_msgTextEdit = new QTextEdit();
-	m_msgTextEdit->setFixedWidth(600);
-	m_msgTextEdit->setFixedHeight(100);
-	m_msgTextEdit->setStyleSheet("background-color:white");
-
-	m_sendMessageBtn = new QPushButton(QString::fromLocal8Bit("发送"));
-	m_sendMessageBtn->setFixedSize(100, 30);
-
-	QVBoxLayout *vLayout1 = new QVBoxLayout();
-	vLayout1->addWidget(m_msgListWgt, 1, Qt::AlignmentFlag::AlignHCenter);
-	vLayout1->addWidget(m_msgTextEdit, 0, Qt::AlignmentFlag::AlignHCenter);
-	vLayout1->addWidget(m_sendMessageBtn, 0, Qt::AlignmentFlag::AlignHCenter);
-
-	// 右侧区域，视频图像
-	m_localVideoRender = new VideoRender();
-	m_remoteVideoRender = new VideoRender();
-
-	QVBoxLayout *vLayout2 = new QVBoxLayout();
-	vLayout2->addWidget(m_localVideoRender);
-	vLayout2->addWidget(m_remoteVideoRender);
+	// 右侧区域，白板区域
+	initRightWidget();
 
 	QGridLayout *mainLayout = new QGridLayout();
 	mainLayout->addWidget(m_leftPannelWidget, 0, 0);
-	mainLayout->addLayout(vLayout1, 0, 1);
-	mainLayout->addLayout(vLayout2, 0, 2);
+	mainLayout->addWidget(m_middlePannelWidget, 0, 1);
+	mainLayout->addWidget(m_rightPannelWidget, 0, 2);
 
 	ui.centralWidget->setLayout(mainLayout);
 
@@ -89,12 +73,12 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 void RealCloud_EDU_PC_DEMO::initLeftWidget()
 {
 	m_leftPannelWidget = new QWidget();
-	m_leftPannelWidget->setFixedWidth(400);
+	m_leftPannelWidget->setFixedWidth(200);
 
 	QLabel *roomLbl = new QLabel(QString::fromLocal8Bit("房间ID："));
 
 	m_roomEdit = new QLineEdit();
-	m_roomEdit->setMinimumWidth(280);
+	m_roomEdit->setMinimumWidth(100);
 
 	QRegExp regx("[0-9]+$");
 	QValidator *validator = new QRegExpValidator(regx);
@@ -108,9 +92,9 @@ void RealCloud_EDU_PC_DEMO::initLeftWidget()
 	QLabel *userLbl = new QLabel(QString::fromLocal8Bit("用户ID："));
 
 	m_userEdit = new QLineEdit();
-	m_userEdit->setMinimumWidth(280);
+	m_userEdit->setMinimumWidth(100);
 	m_userEdit->setText(m_userId);
-	
+
 	QHBoxLayout *hLayout2 = new QHBoxLayout();
 	hLayout2->addWidget(userLbl, 0);
 	hLayout2->addWidget(m_userEdit, 1);
@@ -152,24 +136,152 @@ void RealCloud_EDU_PC_DEMO::initLeftWidget()
 	m_closePlayerBtn->setEnabled(false);
 
 	QGridLayout *gridLayout = new QGridLayout();
-	gridLayout->addLayout(hLayout1, 0, 0);
-	gridLayout->addLayout(hLayout2, 1, 0);
-	gridLayout->addWidget(m_loginBtn, 2, 0);
-	gridLayout->addWidget(m_logoutBtn, 2, 1);
-	gridLayout->addWidget(m_createClassroomBtn, 3, 0);
-	gridLayout->addWidget(m_destoryClassroomBtn, 3, 1);
-	gridLayout->addWidget(m_joinClassroomBtn, 4, 0);
-	gridLayout->addWidget(m_exitClassroomBtn, 4, 1);
-	gridLayout->addWidget(m_openCameraBtn, 5, 0);
-	gridLayout->addWidget(m_closeCameraBtn, 5, 1);
-	gridLayout->addWidget(m_openMicBtn, 6, 0);
-	gridLayout->addWidget(m_closeMicBtn, 6, 1);
-	gridLayout->addWidget(m_openPlayerBtn, 7, 0);
-	gridLayout->addWidget(m_closePlayerBtn, 7, 1);
+	gridLayout->addWidget(m_loginBtn, 0, 0);
+	gridLayout->addWidget(m_logoutBtn, 0, 1);
+	gridLayout->addWidget(m_createClassroomBtn, 1, 0);
+	gridLayout->addWidget(m_destoryClassroomBtn, 1, 1);
+	gridLayout->addWidget(m_joinClassroomBtn, 2, 0);
+	gridLayout->addWidget(m_exitClassroomBtn, 2, 1);
+	gridLayout->addWidget(m_openCameraBtn, 3, 0);
+	gridLayout->addWidget(m_closeCameraBtn, 3, 1);
+	gridLayout->addWidget(m_openMicBtn, 4, 0);
+	gridLayout->addWidget(m_closeMicBtn, 4, 1);
+	gridLayout->addWidget(m_openPlayerBtn, 5, 0);
+	gridLayout->addWidget(m_closePlayerBtn, 5, 1);
 
-	gridLayout->setColumnMinimumWidth(0, 200);
-	gridLayout->setColumnMinimumWidth(1, 200);
-	m_leftPannelWidget->setLayout(gridLayout);
+	m_localVideoRender = new VideoRender();
+	QGroupBox *group1 = new QGroupBox();
+	QHBoxLayout *hLayout3 = new QHBoxLayout();
+	hLayout3->addWidget(m_localVideoRender);
+	group1->setLayout(hLayout3);
+	group1->setTitle(QString::fromLocal8Bit("本地画面"));
+
+	QVBoxLayout *vLayout1 = new QVBoxLayout();
+	vLayout1->addLayout(hLayout1);
+	vLayout1->addLayout(hLayout2);
+	vLayout1->addLayout(gridLayout);
+	vLayout1->addWidget(m_localVideoRender);
+
+	m_leftPannelWidget->setLayout(vLayout1);
+}
+
+void RealCloud_EDU_PC_DEMO::initMiddleWidget()
+{
+	m_middlePannelWidget = new QWidget();
+
+	m_msgListWgt = new QListWidget();
+	m_msgListWgt->setMinimumWidth(220);
+	m_msgListWgt->setStyleSheet("background-color:#99ff99");
+
+	m_msgTextEdit = new QTextEdit();
+	m_msgTextEdit->setMinimumWidth(220);
+	m_msgTextEdit->setFixedHeight(100);
+	m_msgTextEdit->setStyleSheet("background-color:white");
+
+	m_sendMessageBtn = new QPushButton(QString::fromLocal8Bit("发送"));
+	m_sendMessageBtn->setFixedSize(100, 30);
+
+	QVBoxLayout *vLayout1 = new QVBoxLayout();
+	vLayout1->addWidget(m_msgListWgt, 1);
+	vLayout1->addWidget(m_msgTextEdit, 1);
+	vLayout1->addWidget(m_sendMessageBtn, 0, Qt::AlignmentFlag::AlignHCenter);
+
+	m_shareVideoRender = new VideoRender();
+	QGroupBox *group1 = new QGroupBox();
+	QVBoxLayout *hLayout1 = new QVBoxLayout();
+	hLayout1->addWidget(m_shareVideoRender, 1, Qt::AlignCenter);
+	group1->setLayout(hLayout1);
+	group1->setTitle(QString::fromLocal8Bit("辅路视频"));
+	group1->setFixedWidth(200);
+
+	m_remoteVideoRender = new VideoRender();
+	QGroupBox *group2 = new QGroupBox();
+	QHBoxLayout *hLayout2 = new QHBoxLayout();
+	hLayout2->addWidget(m_remoteVideoRender, 1, Qt::AlignCenter);
+	group2->setLayout(hLayout2);
+	group2->setTitle(QString::fromLocal8Bit("远程画面"));
+	group2->setFixedWidth(200);
+
+	QVBoxLayout *vLayout2 = new QVBoxLayout();
+	vLayout2->addWidget(group1);
+	vLayout2->addWidget(group2);
+
+	QGridLayout *gLayout = new QGridLayout();
+	gLayout->addLayout(vLayout1, 0, 0);
+	gLayout->addLayout(vLayout2, 0, 1);
+
+	m_middlePannelWidget->setLayout(gLayout);
+}
+
+void RealCloud_EDU_PC_DEMO::initRightWidget()
+{
+	m_rightPannelWidget = new QWidget();
+	m_rightPannelWidget->setFixedWidth(100);
+
+	QDesktopWidget desktopWgt;
+
+
+	int maxv = 10000;
+
+	QLabel *lblX0 = new QLabel("x0");
+	m_sbX0 = new QSpinBox();
+	m_sbX0->setMaximum(maxv);
+	m_sbX0->setValue(0);
+
+	QHBoxLayout *hLayout1 = new QHBoxLayout();
+	hLayout1->addWidget(lblX0);
+	hLayout1->addWidget(m_sbX0);
+
+	QLabel *lblY0 = new QLabel("y0");
+	m_sbY0 = new QSpinBox();
+	m_sbY0->setMaximum(maxv);
+	m_sbY0->setValue(0);
+
+	QHBoxLayout *hLayout2 = new QHBoxLayout();
+	hLayout2->addWidget(lblY0);
+	hLayout2->addWidget(m_sbY0);
+
+	QLabel *lblX1 = new QLabel("x1");
+	m_sbX1 = new QSpinBox();
+	m_sbX1->setMaximum(maxv);
+	m_sbX1->setValue(desktopWgt.screenGeometry().width());
+
+	QHBoxLayout *hLayout3 = new QHBoxLayout();
+	hLayout3->addWidget(lblX1);
+	hLayout3->addWidget(m_sbX1);
+
+	QLabel *lblY1 = new QLabel("y1");
+	m_sbY1 = new QSpinBox();
+	m_sbY1->setMaximum(maxv);
+	m_sbY1->setValue(desktopWgt.screenGeometry().height());
+
+	QHBoxLayout *hLayout4 = new QHBoxLayout();
+	hLayout4->addWidget(lblY1);
+	hLayout4->addWidget(m_sbY1);
+
+	m_openScreenShareBtn = new QPushButton(QString::fromLocal8Bit("分享指定区域"));
+	m_openScreenShareBtn->setEnabled(false);
+
+	m_openScreenShareWndBtn = new QPushButton(QString::fromLocal8Bit("分享指定窗口"));
+	m_openScreenShareWndBtn->setEnabled(false);
+
+	m_changeScreenShareBtn = new QPushButton(QString::fromLocal8Bit("更改分享区域"));
+	m_changeScreenShareBtn->setEnabled(false);
+
+	m_closeScreenShareBtn = new QPushButton(QString::fromLocal8Bit("关闭屏幕分享"));
+	m_closeScreenShareBtn->setEnabled(false);
+
+	QVBoxLayout *vLayout = new QVBoxLayout();
+	vLayout->addLayout(hLayout1);
+	vLayout->addLayout(hLayout2);
+	vLayout->addLayout(hLayout3);
+	vLayout->addLayout(hLayout4);
+	vLayout->addWidget(m_openScreenShareBtn);
+	vLayout->addWidget(m_openScreenShareWndBtn);
+	vLayout->addWidget(m_changeScreenShareBtn);
+	vLayout->addWidget(m_closeScreenShareBtn);
+
+	m_rightPannelWidget->setLayout(vLayout);
 }
 
 void RealCloud_EDU_PC_DEMO::initParams()
@@ -191,7 +303,7 @@ void RealCloud_EDU_PC_DEMO::initParams()
 	// 设置网络状态监听回调
 	m_sdk->setNetworkConnCallBack(onNetworkConnect, onNetworkDisconn);
 
-
+	emit mainWindow->showMessage(mainWindow->m_userId, QString::fromLocal8Bit("被踢下线 ..."));
 }
 
 void RealCloud_EDU_PC_DEMO::bindSlots()
@@ -212,6 +324,11 @@ void RealCloud_EDU_PC_DEMO::bindSlots()
 
 	connect(this, SIGNAL(showMessage(const QString &, const QString &)), this, SLOT(addMsgContent(const QString &, const QString &)));
 	connect(m_sendMessageBtn, SIGNAL(clicked()), this, SLOT(onSendMessageClicked()));
+
+	connect(m_openScreenShareBtn, SIGNAL(clicked()), this, SLOT(onOpenScreenShareClicked()));
+	connect(m_openScreenShareWndBtn, SIGNAL(clicked()), this, SLOT(onOpenScreenShareWndClicked()));
+	connect(m_changeScreenShareBtn, SIGNAL(clicked()), this, SLOT(onChangeScreenShareClicked()));
+	connect(m_closeScreenShareBtn, SIGNAL(clicked()), this, SLOT(onCloseScreenShareClicked()));
 }
 
 void RealCloud_EDU_PC_DEMO::loadWhiteBoard()
@@ -229,6 +346,7 @@ void RealCloud_EDU_PC_DEMO::enterClassRoom()
 
 	m_localVideoRender->setView(m_userEdit->text().toStdString().c_str(), ilive::VIDEO_SRC_TYPE_CAMERA);
 	m_remoteVideoRender->setView(m_userEdit->text().toStdString().c_str(), ilive::VIDEO_SRC_TYPE_CAMERA);
+	m_shareVideoRender->setView(m_userEdit->text().toStdString().c_str(), ilive::VIDEO_SRC_TYPE_SCREEN);
 }
 
 void RealCloud_EDU_PC_DEMO::exitClassRoom()
@@ -284,8 +402,10 @@ void RealCloud_EDU_PC_DEMO::onIliveSucCallback(void * data)
 		mainWindow->m_closeMicBtn->setEnabled(false);
 		mainWindow->m_openPlayerBtn->setEnabled(false);
 		mainWindow->m_closePlayerBtn->setEnabled(false);
-
-		emit mainWindow->showMessage(userId, "login success ...");
+		mainWindow->m_openScreenShareBtn->setEnabled(false);
+		mainWindow->m_changeScreenShareBtn->setEnabled(false);
+		mainWindow->m_closeScreenShareBtn->setEnabled(false);
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("登陆成功 ..."));
 		break;
 	case LOGOUT:
 		mainWindow->m_loginBtn->setEnabled(true);
@@ -299,25 +419,38 @@ void RealCloud_EDU_PC_DEMO::onIliveSucCallback(void * data)
 		mainWindow->m_closeMicBtn->setEnabled(false);
 		mainWindow->m_openPlayerBtn->setEnabled(false);
 		mainWindow->m_closePlayerBtn->setEnabled(false);
+		mainWindow->m_openScreenShareBtn->setEnabled(true);
+		mainWindow->m_changeScreenShareBtn->setEnabled(false);
+		mainWindow->m_closeScreenShareBtn->setEnabled(false);
 
-		emit mainWindow->showMessage(userId, "logout success ...");
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("登陆成功 ..."));
 		break;
 	case CREATE_ROOM:
-		emit mainWindow->showMessage(userId, "create room success ...");
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("创建房间成功 ..."));
 		break;
 	case DESTORY_ROOM:
-		emit mainWindow->showMessage(userId, "destory room success ...");
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("销毁房间成功 ..."));
 		break;
 	case ENTER_ROOM:
 		mainWindow->m_joinClassroomBtn->setEnabled(false);
 		mainWindow->m_exitClassroomBtn->setEnabled(true);
-		emit mainWindow->showMessage(userId, "enter room success ...");
+		mainWindow->m_openScreenShareBtn->setEnabled(true);
+		mainWindow->m_openScreenShareWndBtn->setEnabled(true);
+		mainWindow->m_changeScreenShareBtn->setEnabled(false);
+		mainWindow->m_closeScreenShareBtn->setEnabled(false);
+
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("进入房间成功 ..."));
 		mainWindow->enterClassRoom();
 		break;
 	case EXIT_ROOM:
 		mainWindow->m_joinClassroomBtn->setEnabled(true);
 		mainWindow->m_exitClassroomBtn->setEnabled(false);
-		emit mainWindow->showMessage(userId, "exit room success ...");
+		mainWindow->m_openScreenShareBtn->setEnabled(false);
+		mainWindow->m_openScreenShareWndBtn->setEnabled(false);
+		mainWindow->m_changeScreenShareBtn->setEnabled(false);
+		mainWindow->m_closeScreenShareBtn->setEnabled(false);
+
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("退出房间成功 ..."));
 		mainWindow->exitClassRoom();
 		break;
 	default:
@@ -331,26 +464,26 @@ void RealCloud_EDU_PC_DEMO::onIliveErrCallback(const int code, const char * desc
 	qDebug("callback onIliveErrCallback ...");
 
 	QString userId = mainWindow->m_userEdit->text();
-	QString msg = QString("code:%1, desc:%2").arg(code).arg(desc);
+	QString msg = QString::fromLocal8Bit("code:%1, desc:%2").arg(code).arg(desc);
 	switch (liveOperation)
 	{
 	case LOGIN:
-		emit mainWindow->showMessage(userId, QString("login fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("登入失败: %1").arg(msg));
 		break;
 	case LOGOUT:
-		emit mainWindow->showMessage(userId, QString("logout fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("登出失败: %1").arg(msg));
 		break;
 	case CREATE_ROOM:
-		emit mainWindow->showMessage(userId, QString("create room fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("创建房间失败: %1").arg(msg));
 		break;
 	case DESTORY_ROOM:
-		emit mainWindow->showMessage(userId, QString("%1 destory room fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("销毁房间失败: %1").arg(msg));
 		break;
 	case ENTER_ROOM:
-		emit mainWindow->showMessage(userId, QString("%1 enter room fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("进入房间失败: %1").arg(msg));
 		break;
 	case EXIT_ROOM:
-		emit mainWindow->showMessage(userId, QString("%1 exit room fail: %1").arg(msg));
+		emit mainWindow->showMessage(userId, QString::fromLocal8Bit("退出房间失败: %1").arg(msg));
 		break;
 	default:
 		break;
@@ -384,6 +517,13 @@ void RealCloud_EDU_PC_DEMO::onDeviceOperation(ilive::E_DeviceOperationType oper,
 void RealCloud_EDU_PC_DEMO::onForceOffline()
 {
 	qDebug("callback onForceOffline ...");
+	mainWindow->m_loginBtn->setEnabled(true);
+	mainWindow->m_logoutBtn->setEnabled(false);
+	mainWindow->m_createClassroomBtn->setEnabled(false);
+	mainWindow->m_destoryClassroomBtn->setEnabled(false);
+	mainWindow->m_joinClassroomBtn->setEnabled(false);
+	mainWindow->exitClassRoom();
+	emit mainWindow->showMessage(mainWindow->m_userId, QString::fromLocal8Bit("已被强制下线..."));
 }
 
 void RealCloud_EDU_PC_DEMO::onNetworkConnect()
@@ -398,6 +538,13 @@ void RealCloud_EDU_PC_DEMO::onNetworkDisconn()
 
 void RealCloud_EDU_PC_DEMO::onLiveVideoDisconnect(int reason, const char * errorinfo, void * data)
 {
+	mainWindow->m_loginBtn->setEnabled(false);
+	mainWindow->m_logoutBtn->setEnabled(false);
+	mainWindow->m_createClassroomBtn->setEnabled(true);
+	mainWindow->m_destoryClassroomBtn->setEnabled(false);
+	mainWindow->m_joinClassroomBtn->setEnabled(true);
+	exitClassRoom();
+	emit mainWindow->showMessage(mainWindow->m_userId, QString::fromLocal8Bit("房间网络断开 ..."));
 }
 
 void RealCloud_EDU_PC_DEMO::onMemStatusChange(ilive::E_EndpointEventId event_id, const ilive::Vector<ilive::String>& ids, void * data)
@@ -414,6 +561,36 @@ void RealCloud_EDU_PC_DEMO::onMemberQuit(const char ** identifier, uint32_t num)
 
 void RealCloud_EDU_PC_DEMO::onClassroomDestroy()
 {
+	if (m_sdk->GetILive()->isEnterRoom())
+	{
+		onExitClassroomClicked();
+	}
+	else
+	{
+		mainWindow->m_loginBtn->setEnabled(false);
+		mainWindow->m_logoutBtn->setEnabled(true);
+		mainWindow->m_destoryClassroomBtn->setEnabled(true);
+		mainWindow->m_openCameraBtn->setEnabled(false);
+		mainWindow->m_closeCameraBtn->setEnabled(false);
+		mainWindow->m_openMicBtn->setEnabled(false);
+		mainWindow->m_closeMicBtn->setEnabled(false);
+		mainWindow->m_openPlayerBtn->setEnabled(false);
+		mainWindow->m_closePlayerBtn->setEnabled(false);
+
+		if (m_opt.getIsTeacher())
+		{
+			mainWindow->m_createClassroomBtn->setEnabled(true);
+			mainWindow->m_joinClassroomBtn->setEnabled(true);
+			mainWindow->m_exitClassroomBtn->setEnabled(false);
+		}
+		else
+		{
+			mainWindow->m_createClassroomBtn->setEnabled(false);
+			mainWindow->m_joinClassroomBtn->setEnabled(false);
+			mainWindow->m_exitClassroomBtn->setEnabled(true);
+		}
+	}
+	emit showMessage(m_userId, QString::fromLocal8Bit("房间被集散 ..."));
 }
 
 void RealCloud_EDU_PC_DEMO::onShareWindow(HWND hwnd)
@@ -562,6 +739,67 @@ void RealCloud_EDU_PC_DEMO::onClosePlayerClicked()
 	m_sdk->enablePlayer(false);
 	m_openPlayerBtn->setEnabled(true);
 	m_closePlayerBtn->setEnabled(false);
+}
+
+void RealCloud_EDU_PC_DEMO::onOpenScreenShareClicked()
+{
+	m_openScreenShareBtn->setEnabled(false);
+	m_openScreenShareWndBtn->setEnabled(false);
+	m_changeScreenShareBtn->setEnabled(true);
+	m_closeScreenShareBtn->setEnabled(true);
+
+	int32 x0 = m_sbX0->value();
+	int32 y0 = m_sbY0->value();
+	int32 x1 = m_sbX1->value();
+	int32 y1 = m_sbY1->value();
+	m_sdk->openScreenShare(x0, y0, x1, y1, m_fps);
+}
+
+void RealCloud_EDU_PC_DEMO::onOpenScreenShareWndClicked()
+{
+	m_openScreenShareBtn->setEnabled(false);
+	m_openScreenShareWndBtn->setEnabled(false);
+	m_changeScreenShareBtn->setEnabled(true);
+	m_closeScreenShareBtn->setEnabled(true);
+	m_sbX0->setEnabled(false);
+	m_sbY0->setEnabled(false);
+	m_sbX1->setEnabled(false);
+	m_sbY1->setEnabled(false);
+
+	HWND hwnd = WndList::GetSelectWnd();
+	m_sdk->openWindowShare(hwnd);
+}
+
+void RealCloud_EDU_PC_DEMO::onChangeScreenShareClicked()
+{
+	m_changeScreenShareBtn->setEnabled(false);
+	int32 x0 = m_sbX0->value();
+	int32 y0 = m_sbY0->value();
+	int32 x1 = m_sbX1->value();
+	int32 y1 = m_sbY1->value();
+
+	int ret = m_sdk->changeScreenShareSize(x0, y0, x1, y1);
+	if (ret != NO_ERR) 
+	{
+		m_changeScreenShareBtn->setEnabled(true);
+		emit showMessage(m_userId, QString::fromLocal8Bit("更改分享区域失败"));
+		return;
+	}
+}
+
+void RealCloud_EDU_PC_DEMO::onCloseScreenShareClicked()
+{
+	m_openScreenShareBtn->setEnabled(true);
+	m_openScreenShareWndBtn->setEnabled(true);
+	m_changeScreenShareBtn->setEnabled(false);
+	m_closeScreenShareBtn->setEnabled(false);
+
+	m_sbX0->setEnabled(true);
+	m_sbY0->setEnabled(true);
+	m_sbX1->setEnabled(true);
+	m_sbY1->setEnabled(true);
+
+	m_sdk->closeScreenShare();
 }
 
 void RealCloud_EDU_PC_DEMO::addMsgContent(const QString & userId, const QString & msg)
