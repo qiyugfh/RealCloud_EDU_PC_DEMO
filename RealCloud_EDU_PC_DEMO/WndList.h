@@ -2,6 +2,11 @@
 #define WndList_h_
 
 #include "ui_WndList.h"
+#include <QDialog>
+#include "iLive.h"
+
+using namespace ilive;
+
 
 class WndList : public QDialog
 {

@@ -9,6 +9,7 @@
 #include <QGroupBox>
 #include <QDeskTopWidget>
 #include "WndList.h"
+#include <qwindow.h>
 
 
 #define USER_TOKEN_1 "eJxNjttOg0AQht*Fa2P3ACyY9AIainJQW23FpslmhYWsRorLQrHGd3dLaOLcTPJ9M-PPj-GcPF2zPD90taLqu*HG" \
@@ -65,6 +66,9 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 	mainLayout->addWidget(m_rightPannelWidget, 0, 2);
 
 	ui.centralWidget->setLayout(mainLayout);
+	ui.centralWidget->setFixedHeight(700);
+	this->setStatusBar(0);
+	this->setMenuBar(0);
 
 	// 绑定信号槽
 	bindSlots();
@@ -73,12 +77,12 @@ void RealCloud_EDU_PC_DEMO::initLayout()
 void RealCloud_EDU_PC_DEMO::initLeftWidget()
 {
 	m_leftPannelWidget = new QWidget();
-	m_leftPannelWidget->setFixedWidth(200);
+	m_leftPannelWidget->setFixedWidth(300);
 
 	QLabel *roomLbl = new QLabel(QString::fromLocal8Bit("房间ID："));
 
 	m_roomEdit = new QLineEdit();
-	m_roomEdit->setMinimumWidth(100);
+	m_roomEdit->setMinimumWidth(200);
 
 	QRegExp regx("[0-9]+$");
 	QValidator *validator = new QRegExpValidator(regx);
@@ -92,7 +96,7 @@ void RealCloud_EDU_PC_DEMO::initLeftWidget()
 	QLabel *userLbl = new QLabel(QString::fromLocal8Bit("用户ID："));
 
 	m_userEdit = new QLineEdit();
-	m_userEdit->setMinimumWidth(100);
+	m_userEdit->setMinimumWidth(200);
 	m_userEdit->setText(m_userId);
 
 	QHBoxLayout *hLayout2 = new QHBoxLayout();
@@ -152,22 +156,30 @@ void RealCloud_EDU_PC_DEMO::initLeftWidget()
 	m_localVideoRender = new VideoRender();
 	QGroupBox *group1 = new QGroupBox();
 	QHBoxLayout *hLayout3 = new QHBoxLayout();
-	hLayout3->addWidget(m_localVideoRender);
+	hLayout3->addWidget(m_localVideoRender, 1, Qt::AlignCenter);
 	group1->setLayout(hLayout3);
 	group1->setTitle(QString::fromLocal8Bit("本地画面"));
+
+	m_remoteVideoRender = new VideoRender();
+	QGroupBox *group2 = new QGroupBox();
+	QHBoxLayout *hLayout4 = new QHBoxLayout();
+	hLayout4->addWidget(m_remoteVideoRender, 1, Qt::AlignCenter);
+	group2->setLayout(hLayout4);
+	group2->setTitle(QString::fromLocal8Bit("远程画面"));
 
 	QVBoxLayout *vLayout1 = new QVBoxLayout();
 	vLayout1->addLayout(hLayout1);
 	vLayout1->addLayout(hLayout2);
 	vLayout1->addLayout(gridLayout);
-	vLayout1->addWidget(m_localVideoRender);
+	vLayout1->addWidget(group1, 1, Qt::AlignHCenter);
+	vLayout1->addWidget(group2, 1, Qt::AlignHCenter);
 
 	m_leftPannelWidget->setLayout(vLayout1);
 }
 
-void RealCloud_EDU_PC_DEMO::initMiddleWidget()
+void RealCloud_EDU_PC_DEMO::initRightWidget()
 {
-	m_middlePannelWidget = new QWidget();
+	m_rightPannelWidget = new QWidget();
 
 	m_msgListWgt = new QListWidget();
 	m_msgListWgt->setMinimumWidth(220);
@@ -186,41 +198,18 @@ void RealCloud_EDU_PC_DEMO::initMiddleWidget()
 	vLayout1->addWidget(m_msgTextEdit, 1);
 	vLayout1->addWidget(m_sendMessageBtn, 0, Qt::AlignmentFlag::AlignHCenter);
 
-	m_shareVideoRender = new VideoRender();
-	QGroupBox *group1 = new QGroupBox();
-	QVBoxLayout *hLayout1 = new QVBoxLayout();
-	hLayout1->addWidget(m_shareVideoRender, 1, Qt::AlignCenter);
-	group1->setLayout(hLayout1);
-	group1->setTitle(QString::fromLocal8Bit("辅路视频"));
-	group1->setFixedWidth(200);
-
-	m_remoteVideoRender = new VideoRender();
-	QGroupBox *group2 = new QGroupBox();
-	QHBoxLayout *hLayout2 = new QHBoxLayout();
-	hLayout2->addWidget(m_remoteVideoRender, 1, Qt::AlignCenter);
-	group2->setLayout(hLayout2);
-	group2->setTitle(QString::fromLocal8Bit("远程画面"));
-	group2->setFixedWidth(200);
-
-	QVBoxLayout *vLayout2 = new QVBoxLayout();
-	vLayout2->addWidget(group1);
-	vLayout2->addWidget(group2);
-
-	QGridLayout *gLayout = new QGridLayout();
-	gLayout->addLayout(vLayout1, 0, 0);
-	gLayout->addLayout(vLayout2, 0, 1);
-
-	m_middlePannelWidget->setLayout(gLayout);
+	m_rightPannelWidget->setLayout(vLayout1);
 }
 
-void RealCloud_EDU_PC_DEMO::initRightWidget()
-{
-	m_rightPannelWidget = new QWidget();
-	m_rightPannelWidget->setFixedWidth(100);
+void RealCloud_EDU_PC_DEMO::initScreenShareWidget()
+{	// 屏幕分享
+	m_shareVideoWgt = new QWidget();
+	m_shareVideoWgt->setStyleSheet("background-color:#f0f0f0");
+
+	m_shareVideoRender = new VideoRender();
+	m_shareVideoRender->setMinimumWidth(580);
 
 	QDesktopWidget desktopWgt;
-
-
 	int maxv = 10000;
 
 	QLabel *lblX0 = new QLabel("x0");
@@ -271,17 +260,73 @@ void RealCloud_EDU_PC_DEMO::initRightWidget()
 	m_closeScreenShareBtn = new QPushButton(QString::fromLocal8Bit("关闭屏幕分享"));
 	m_closeScreenShareBtn->setEnabled(false);
 
-	QVBoxLayout *vLayout = new QVBoxLayout();
-	vLayout->addLayout(hLayout1);
-	vLayout->addLayout(hLayout2);
-	vLayout->addLayout(hLayout3);
-	vLayout->addLayout(hLayout4);
-	vLayout->addWidget(m_openScreenShareBtn);
-	vLayout->addWidget(m_openScreenShareWndBtn);
-	vLayout->addWidget(m_changeScreenShareBtn);
-	vLayout->addWidget(m_closeScreenShareBtn);
+	QGridLayout *gLayout0 = new QGridLayout();
+	gLayout0->addLayout(hLayout1, 0, 0);
+	gLayout0->addLayout(hLayout2, 0, 1);
+	gLayout0->addLayout(hLayout3, 0, 2);
+	gLayout0->addLayout(hLayout4, 0, 3);
+	gLayout0->addWidget(m_openScreenShareBtn, 1, 0);
+	gLayout0->addWidget(m_openScreenShareWndBtn, 1, 1);
+	gLayout0->addWidget(m_changeScreenShareBtn, 1, 2);
+	gLayout0->addWidget(m_closeScreenShareBtn, 1, 3);
 
-	m_rightPannelWidget->setLayout(vLayout);
+	QGridLayout *gLayout = new QGridLayout();
+	gLayout->addWidget(m_shareVideoRender, 0, 0, Qt::AlignHCenter);
+	gLayout->addLayout(gLayout0, 1, 0, Qt::AlignHCenter);
+	m_shareVideoWgt->setLayout(gLayout);
+}
+
+void RealCloud_EDU_PC_DEMO::initWhiteBoardWidget()
+{
+	m_whiteBoardWgt = new QWidget();
+	m_whiteBoardWgt->setStyleSheet("background-color:#f0f0f0");
+
+	m_whiteBoardContainer = new QWidget();
+	m_whiteBoardContainer->setMinimumWidth(580);
+
+	m_createWhiteBoardBtn = new QPushButton(QString::fromLocal8Bit("创建白板"));
+	m_destoryWhiteBoardBtn = new QPushButton(QString::fromLocal8Bit("销毁白板"));
+	m_addWhiteBoardBtn = new QPushButton(QString::fromLocal8Bit("新增一页"));
+	m_delWhiteBoardBtn = new QPushButton(QString::fromLocal8Bit("删除一页"));
+	m_prePageBtn = new QPushButton(QString::fromLocal8Bit("上一页"));
+	m_nextPageBtn = new QPushButton(QString::fromLocal8Bit("下一页"));
+	m_currentPage = new QLabel("1/1");
+	m_uploadBkPicBtn = new QPushButton(QString::fromLocal8Bit("上传背景图"));
+
+	QGridLayout *gLayout0 = new QGridLayout();
+	gLayout0->addWidget(m_createWhiteBoardBtn, 0, 0);
+	gLayout0->addWidget(m_destoryWhiteBoardBtn, 0, 1);
+	gLayout0->addWidget(m_addWhiteBoardBtn, 1, 0);
+	gLayout0->addWidget(m_delWhiteBoardBtn, 1, 1);
+	gLayout0->addWidget(m_prePageBtn, 2, 0);
+	gLayout0->addWidget(m_nextPageBtn, 2, 1);
+	gLayout0->addWidget(m_currentPage, 3, 0);
+	gLayout0->addWidget(m_uploadBkPicBtn, 3, 1);
+	
+
+	QGridLayout *gLayout1 = new QGridLayout();
+	gLayout1->addWidget(m_whiteBoardContainer, 0, 0, Qt::AlignHCenter);
+	gLayout1->addLayout(gLayout0, 1, 0, Qt::AlignHCenter);
+	m_whiteBoardWgt->setLayout(gLayout1);
+}
+
+void RealCloud_EDU_PC_DEMO::initMiddleWidget()
+{
+	m_middlePannelWidget = new QWidget();
+
+	m_dispalyTabWidget = new QTabWidget();
+	m_dispalyTabWidget->setMinimumSize(600, 600);
+
+	initScreenShareWidget();
+	initWhiteBoardWidget();
+
+	m_dispalyTabWidget->addTab(m_shareVideoWgt, QString::fromLocal8Bit("屏幕分享"));
+	m_dispalyTabWidget->addTab(m_whiteBoardWgt, QString::fromLocal8Bit("白板"));
+
+	QGridLayout *glayout11 = new QGridLayout();
+	glayout11->addWidget(m_dispalyTabWidget, 0, 0, Qt::AlignCenter);
+
+	m_middlePannelWidget->setLayout(glayout11);
 }
 
 void RealCloud_EDU_PC_DEMO::initParams()
@@ -302,6 +347,7 @@ void RealCloud_EDU_PC_DEMO::initParams()
 	m_sdk->setForceOfflineCallback(onForceOffline);
 	// 设置网络状态监听回调
 	m_sdk->setNetworkConnCallBack(onNetworkConnect, onNetworkDisconn);
+
 
 	emit mainWindow->showMessage(mainWindow->m_userId, QString::fromLocal8Bit("被踢下线 ..."));
 }
@@ -329,10 +375,9 @@ void RealCloud_EDU_PC_DEMO::bindSlots()
 	connect(m_openScreenShareWndBtn, SIGNAL(clicked()), this, SLOT(onOpenScreenShareWndClicked()));
 	connect(m_changeScreenShareBtn, SIGNAL(clicked()), this, SLOT(onChangeScreenShareClicked()));
 	connect(m_closeScreenShareBtn, SIGNAL(clicked()), this, SLOT(onCloseScreenShareClicked()));
-}
 
-void RealCloud_EDU_PC_DEMO::loadWhiteBoard()
-{
+	connect(m_createWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onCreateWhiteBoardClicked()));
+	connect(m_destoryWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onDestoryWhiteBoardClicked()));
 }
 
 void RealCloud_EDU_PC_DEMO::enterClassRoom()
@@ -371,6 +416,11 @@ VideoRender * RealCloud_EDU_PC_DEMO::getLocalVideoRender()
 VideoRender * RealCloud_EDU_PC_DEMO::getRemoteVideoRender()
 {
 	return m_remoteVideoRender;
+}
+
+VideoRender * RealCloud_EDU_PC_DEMO::getScreenShareRender()
+{
+	return m_shareVideoRender;
 }
 
 void RealCloud_EDU_PC_DEMO::onSendTIMMsgSuccess(void * data)
@@ -494,19 +544,30 @@ void RealCloud_EDU_PC_DEMO::onLocalVideo(const ilive::LiveVideoFrame *videoFrame
 {
 	qDebug("callback onLocalVideo ...");
 	RealCloud_EDU_PC_DEMO *widget = (RealCloud_EDU_PC_DEMO *)customData;
-
 	E_VideoSrc srcType = videoFrame->desc.srcType;
-	widget->getLocalVideoRender()->doRender(videoFrame);
+	if(srcType == VIDEO_SRC_TYPE_CAMERA){
+		widget->getLocalVideoRender()->doRender(videoFrame);
+	}
+	else if (srcType == VIDEO_SRC_TYPE_SCREEN || srcType == VIDEO_SRC_TYPE_MEDIA)
+	{
+		widget->getScreenShareRender()->doRender(videoFrame);
+	}
 
 }
 
 void RealCloud_EDU_PC_DEMO::onRemoteVideo(const ilive::LiveVideoFrame * videoFrame, void * customData)
 {
-	qDebug("callback onLocalVideo ...");
+	qDebug("callback onRemoteVideo ...");
 	RealCloud_EDU_PC_DEMO *widget = (RealCloud_EDU_PC_DEMO *)customData;
 
 	E_VideoSrc srcType = videoFrame->desc.srcType;
-	widget->getRemoteVideoRender()->doRender(videoFrame);
+	if (srcType == VIDEO_SRC_TYPE_CAMERA) {
+		widget->getRemoteVideoRender()->doRender(videoFrame);
+	}
+	else if(srcType == VIDEO_SRC_TYPE_SCREEN || srcType == VIDEO_SRC_TYPE_MEDIA)
+	{
+		widget->getScreenShareRender()->doRender(videoFrame);
+	}
 }
 
 void RealCloud_EDU_PC_DEMO::onDeviceOperation(ilive::E_DeviceOperationType oper, int retCode, void * data)
@@ -772,7 +833,6 @@ void RealCloud_EDU_PC_DEMO::onOpenScreenShareWndClicked()
 
 void RealCloud_EDU_PC_DEMO::onChangeScreenShareClicked()
 {
-	m_changeScreenShareBtn->setEnabled(false);
 	int32 x0 = m_sbX0->value();
 	int32 y0 = m_sbY0->value();
 	int32 x1 = m_sbX1->value();
@@ -781,7 +841,6 @@ void RealCloud_EDU_PC_DEMO::onChangeScreenShareClicked()
 	int ret = m_sdk->changeScreenShareSize(x0, y0, x1, y1);
 	if (ret != NO_ERR) 
 	{
-		m_changeScreenShareBtn->setEnabled(true);
 		emit showMessage(m_userId, QString::fromLocal8Bit("更改分享区域失败"));
 		return;
 	}
@@ -800,6 +859,54 @@ void RealCloud_EDU_PC_DEMO::onCloseScreenShareClicked()
 	m_sbY1->setEnabled(true);
 
 	m_sdk->closeScreenShare();
+}
+
+void RealCloud_EDU_PC_DEMO::onCreateWhiteBoardClicked()
+{
+
+	m_sdk->initWhiteBoard(m_opt.getRoomID(), (HWND)this->winId());
+
+	HWND hwnd = m_sdk->getTICWhiteBoardManager()->getBoardSDK()->getRenderWindow();
+	m_whiteBoardWid = QWidget::createWindowContainer(QWindow::fromWinId((WId)hwnd));
+	m_hLayoutWhiteBoard = new QHBoxLayout();
+	m_hLayoutWhiteBoard->addWidget(m_whiteBoardWid, 1);
+	m_whiteBoardContainer->setLayout(m_hLayoutWhiteBoard);
+	m_whiteBoardContainer->update();
+
+	m_createWhiteBoardBtn->setEnabled(false);
+	m_destoryWhiteBoardBtn->setEnabled(true);
+}
+
+void RealCloud_EDU_PC_DEMO::onDestoryWhiteBoardClicked()
+{
+	m_sdk->getTICWhiteBoardManager()->clearWhiteBoard();
+	m_whiteBoardWid->update();
+	delete m_hLayoutWhiteBoard;
+	m_hLayoutWhiteBoard = NULL;
+
+	m_createWhiteBoardBtn->setEnabled(true);
+	m_destoryWhiteBoardBtn->setEnabled(false);
+}
+
+void RealCloud_EDU_PC_DEMO::onAddWhiteBoardPageClicked()
+{
+}
+
+void RealCloud_EDU_PC_DEMO::onDelWhiteBoardPageClicked()
+{
+}
+
+void RealCloud_EDU_PC_DEMO::onClearWhiteBoardPageClicked()
+{
+}
+
+void RealCloud_EDU_PC_DEMO::onPrePageClicked()
+{
+	//m_sdk->getTICWhiteBoardManager()->getBoardSDK()->getBoardData();
+}
+
+void RealCloud_EDU_PC_DEMO::onNextPageClicked()
+{
 }
 
 void RealCloud_EDU_PC_DEMO::addMsgContent(const QString & userId, const QString & msg)

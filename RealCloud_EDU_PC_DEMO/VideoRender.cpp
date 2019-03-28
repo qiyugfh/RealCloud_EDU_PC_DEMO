@@ -3,12 +3,11 @@
 #include <QStyleOption>
 
 
-const int ScreenWidth = 180;
 
 VideoRender::VideoRender(QWidget *parent)
 	: QWidget(parent), m_pRootView(NULL)
 {
-	this->setMinimumSize(ScreenWidth, ScreenWidth);
+	this->setMinimumSize(300, 300);
 	this->setAttribute(Qt::WA_StyledBackground, true);
 	this->setStyleSheet("background-color: rgb(255, 255, 255)");
 	

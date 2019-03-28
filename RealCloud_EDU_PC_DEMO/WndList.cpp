@@ -1,10 +1,11 @@
-#include "stdafx.h"
+#include <Windows.h>
 #include "WndList.h"
+#include <QMessageBox>
 
 
 int WndList::ms_nLastIndex = 0;
 
-WndList::WndList( QWidget *parent/* = 0*/, Qt::WindowFlags f/* = 0*/ )
+WndList::WndList(QWidget *parent/* = 0*/, Qt::WindowFlags f/* = 0*/)
 	:QDialog(parent, f)
 {
 	m_ui.setupUi(this);
@@ -16,13 +17,14 @@ HWND WndList::GetSelectWnd(QWidget* parent /*= NULL*/)
 	int nRet = wndlist->Refresh();
 	if (nRet != NO_ERR)
 	{
-		if (nRet==1301)//AV_ERR_DEVICE_NOT_EXIST 没有可供分享的窗口
+		//AV_ERR_DEVICE_NOT_EXIST 没有可供分享的窗口
+		if (nRet == 1301)
 		{
-			ShowCodeErrorTips( nRet, FromBits("没有可供分享的窗口."), parent );
+			QMessageBox::warning(parent, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("没有可供分享的窗口"), QMessageBox::Ok);
 		}
 		else
 		{
-			ShowCodeErrorTips( nRet, "Get window list failed.", parent );
+			QMessageBox::warning(parent, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("获取窗口列表失败"), QMessageBox::Ok);
 		}
 	}
 	else
@@ -41,11 +43,11 @@ int WndList::Refresh()
 	int nRet = GetILive()->getWndList(m_wndList);
 	if (nRet == NO_ERR)
 	{
-		for ( int i = 0; i<m_wndList.size(); ++i )
+		for (int i = 0; i < m_wndList.size(); ++i)
 		{
-			m_ui.liWndList->addItem( new QListWidgetItem( FromBits( m_wndList[i].second.c_str() ) ) );
+			m_ui.liWndList->addItem(new QListWidgetItem(QString::fromLocal8Bit(m_wndList[i].second.c_str())));
 		}
-		ms_nLastIndex = iliveMin( m_wndList.size()-1, iliveMax(0, ms_nLastIndex) );
+		ms_nLastIndex = iliveMin(m_wndList.size() - 1, iliveMax(0, ms_nLastIndex));
 		m_ui.liWndList->setCurrentRow(ms_nLastIndex);
 	}
 	return nRet;
@@ -63,7 +65,7 @@ void WndList::on_btnCancel_clicked()
 	close();
 }
 
-void WndList::on_liWndList_itemDoubleClicked( QListWidgetItem* item )
+void WndList::on_liWndList_itemDoubleClicked(QListWidgetItem* item)
 {
 	ms_nLastIndex = m_ui.liWndList->currentRow();
 	m_curhwnd = m_wndList[ms_nLastIndex].first;

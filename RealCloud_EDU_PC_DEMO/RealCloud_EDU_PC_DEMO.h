@@ -12,6 +12,10 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QSpinBox>
+#include <QTabWidget>
+#include <QColor>
+#include <QLabel>
+#include <QHBoxLayout>
 
 
 enum LiveOperation
@@ -33,7 +37,6 @@ public:
 	RealCloud_EDU_PC_DEMO(QWidget *parent = Q_NULLPTR);
 	~RealCloud_EDU_PC_DEMO();
 
-	void  loadWhiteBoard();
 	void  enterClassRoom();
 	void  exitClassRoom();
 
@@ -41,6 +44,7 @@ public:
 
 	VideoRender *getRemoteVideoRender();
 
+	VideoRender *getScreenShareRender();
 
 private:
 
@@ -48,6 +52,9 @@ private:
 	void initLeftWidget();
 	void initMiddleWidget();
 	void initRightWidget();
+	void initScreenShareWidget();
+	void initWhiteBoardWidget();
+
 	void initParams();
 	void bindSlots();
 
@@ -141,6 +148,15 @@ private slots:
 	void onChangeScreenShareClicked();
 	void onCloseScreenShareClicked();
 
+	void onCreateWhiteBoardClicked();
+	void onDestoryWhiteBoardClicked();
+	void onAddWhiteBoardPageClicked();
+	void onDelWhiteBoardPageClicked();
+	void onClearWhiteBoardPageClicked();
+	void onPrePageClicked();
+	void onNextPageClicked();
+
+
 public:
 	// °´Å¥ÇøÓò
 	QLineEdit *m_roomEdit;
@@ -171,6 +187,20 @@ public:
 	QPushButton *m_changeScreenShareBtn;
 	QPushButton *m_closeScreenShareBtn;
 
+	// °×°å²Ù×÷
+	QPushButton *m_createWhiteBoardBtn;
+	QPushButton *m_destoryWhiteBoardBtn;
+	QPushButton *m_addWhiteBoardBtn;
+	QPushButton *m_delWhiteBoardBtn;
+	QPushButton *m_clearWhiteBoardBtn;
+	QPushButton *m_prePageBtn;
+	QPushButton *m_nextPageBtn;
+	QColor m_whiteBoardColor;
+	QLabel *m_currentPage;
+	QPushButton *m_uploadBkPicBtn;
+
+	QTabWidget *m_dispalyTabWidget;
+
 
 	QSpinBox *m_sbX0;
 	QSpinBox *m_sbX1;
@@ -187,6 +217,11 @@ private:
 	VideoRender *m_localVideoRender;
 	VideoRender *m_remoteVideoRender;
 	VideoRender *m_shareVideoRender;
+	
+	QWidget *m_whiteBoardContainer;
+	QWidget *m_whiteBoardWid;
+	QHBoxLayout *m_hLayoutWhiteBoard;
+
 
 	QString m_userId;
 	QString m_roomId;
@@ -196,5 +231,7 @@ private:
 	QWidget *m_leftPannelWidget;
 	QWidget *m_middlePannelWidget;
 	QWidget *m_rightPannelWidget;
+	QWidget *m_shareVideoWgt;
+	QWidget *m_whiteBoardWgt;
 	uint32 m_fps;
 };
