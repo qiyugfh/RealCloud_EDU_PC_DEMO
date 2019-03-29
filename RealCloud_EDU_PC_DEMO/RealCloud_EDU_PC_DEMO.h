@@ -58,6 +58,7 @@ private:
 	void initParams();
 	void bindSlots();
 
+	void updatePage();
 
 	void onLiveVideoDisconnect(int reason, const char *errorinfo, void* data) override;
 
@@ -128,8 +129,8 @@ public slots:
 
 private slots:
 
-	void onLoginBtnClicked();
-	void onLogoutBtnClicked();
+	void onLoginClicked();
+	void onLogoutClicked();
 	void onCreateClassroomClicked();
 	void onDestoryClassroomClicked();
 	void onJoinClassroomClicked();
@@ -155,6 +156,7 @@ private slots:
 	void onClearWhiteBoardPageClicked();
 	void onPrePageClicked();
 	void onNextPageClicked();
+	void onUploadBkFileClicked();
 
 
 public:
@@ -197,7 +199,7 @@ public:
 	QPushButton *m_nextPageBtn;
 	QColor m_whiteBoardColor;
 	QLabel *m_currentPage;
-	QPushButton *m_uploadBkPicBtn;
+	QPushButton *m_uploadBkFileBtn;
 
 	QTabWidget *m_dispalyTabWidget;
 

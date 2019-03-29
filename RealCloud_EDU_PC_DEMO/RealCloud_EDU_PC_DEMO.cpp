@@ -10,6 +10,7 @@
 #include <QDeskTopWidget>
 #include "WndList.h"
 #include <qwindow.h>
+#include <QFileDialog>
 
 
 #define USER_TOKEN_1 "eJxNjttOg0AQht*Fa2P3ACyY9AIainJQW23FpslmhYWsRorLQrHGd3dLaOLcTPJ9M-PPj-GcPF2zPD90taLqu*HG" \
@@ -28,7 +29,8 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 	m_userId("userid_100009353839_1"),
 	m_userToken(USER_TOKEN_1),
 	m_roomId("2147483640"),
-	m_fps(10)
+	m_fps(10),
+	m_hLayoutWhiteBoard(NULL)
 {
 	ui.setupUi(this);
 
@@ -46,7 +48,7 @@ RealCloud_EDU_PC_DEMO::RealCloud_EDU_PC_DEMO(QWidget *parent)
 
 RealCloud_EDU_PC_DEMO::~RealCloud_EDU_PC_DEMO()
 {
-	onLogoutBtnClicked();
+	onLogoutClicked();
 }
 
 void RealCloud_EDU_PC_DEMO::initLayout()
@@ -291,7 +293,8 @@ void RealCloud_EDU_PC_DEMO::initWhiteBoardWidget()
 	m_prePageBtn = new QPushButton(QString::fromLocal8Bit("上一页"));
 	m_nextPageBtn = new QPushButton(QString::fromLocal8Bit("下一页"));
 	m_currentPage = new QLabel("1/1");
-	m_uploadBkPicBtn = new QPushButton(QString::fromLocal8Bit("上传背景图"));
+	m_uploadBkFileBtn = new QPushButton(QString::fromLocal8Bit("上传背景图"));
+	m_clearWhiteBoardBtn = new QPushButton(QString::fromLocal8Bit("清除涂鸦"));
 
 	QGridLayout *gLayout0 = new QGridLayout();
 	gLayout0->addWidget(m_createWhiteBoardBtn, 0, 0);
@@ -301,8 +304,9 @@ void RealCloud_EDU_PC_DEMO::initWhiteBoardWidget()
 	gLayout0->addWidget(m_prePageBtn, 2, 0);
 	gLayout0->addWidget(m_nextPageBtn, 2, 1);
 	gLayout0->addWidget(m_currentPage, 3, 0);
-	gLayout0->addWidget(m_uploadBkPicBtn, 3, 1);
-	
+	gLayout0->addWidget(m_uploadBkFileBtn, 3, 1);
+	gLayout0->addWidget(m_clearWhiteBoardBtn, 4, 0);
+
 
 	QGridLayout *gLayout1 = new QGridLayout();
 	gLayout1->addWidget(m_whiteBoardContainer, 0, 0, Qt::AlignHCenter);
@@ -354,8 +358,8 @@ void RealCloud_EDU_PC_DEMO::initParams()
 
 void RealCloud_EDU_PC_DEMO::bindSlots()
 {
-	connect(m_loginBtn, SIGNAL(clicked()), this, SLOT(onLoginBtnClicked()));
-	connect(m_logoutBtn, SIGNAL(clicked()), this, SLOT(onLogoutBtnClicked()));
+	connect(m_loginBtn, SIGNAL(clicked()), this, SLOT(onLoginClicked()));
+	connect(m_logoutBtn, SIGNAL(clicked()), this, SLOT(onLogoutClicked()));
 	connect(m_createClassroomBtn, SIGNAL(clicked()), this, SLOT(onCreateClassroomClicked()));
 	connect(m_destoryClassroomBtn, SIGNAL(clicked()), this, SLOT(onDestoryClassroomClicked()));
 	connect(m_joinClassroomBtn, SIGNAL(clicked()), this, SLOT(onJoinClassroomClicked()));
@@ -378,6 +382,41 @@ void RealCloud_EDU_PC_DEMO::bindSlots()
 
 	connect(m_createWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onCreateWhiteBoardClicked()));
 	connect(m_destoryWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onDestoryWhiteBoardClicked()));
+	connect(m_addWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onAddWhiteBoardPageClicked()));
+	connect(m_delWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onDelWhiteBoardPageClicked()));
+	connect(m_clearWhiteBoardBtn, SIGNAL(clicked()), this, SLOT(onClearWhiteBoardPageClicked()));
+	connect(m_prePageBtn, SIGNAL(clicked()), this, SLOT(onPrePageClicked()));
+	connect(m_nextPageBtn, SIGNAL(clicked()), this, SLOT(onNextPageClicked()));
+	connect(m_uploadBkFileBtn, SIGNAL(clicked()), this, SLOT(onUploadBkFileClicked()));
+}
+
+void RealCloud_EDU_PC_DEMO::updatePage()
+{
+	uint32_t pageIndex = m_sdk->getTICWhiteBoardManager()->getPageIndex();
+	uint32_t pageCount = m_sdk->getTICWhiteBoardManager()->getPageCount();
+	QString curtext = QString("%1/%2").arg(pageIndex).arg(pageCount);
+	qDebug() << "current page: " << curtext;
+	m_currentPage->setText(curtext);
+
+	if (pageCount <= 1) {
+		m_prePageBtn->setEnabled(false);
+		m_nextPageBtn->setEnabled(false);
+	}
+	else if (pageIndex == pageCount)
+	{
+		m_prePageBtn->setEnabled(true);
+		m_nextPageBtn->setEnabled(false);
+	}
+	else if (pageIndex <= 1)
+	{
+		m_prePageBtn->setEnabled(false);
+		m_nextPageBtn->setEnabled(true);
+	}
+	else
+	{
+		m_prePageBtn->setEnabled(true);
+		m_nextPageBtn->setEnabled(true);
+	}
 }
 
 void RealCloud_EDU_PC_DEMO::enterClassRoom()
@@ -545,7 +584,7 @@ void RealCloud_EDU_PC_DEMO::onLocalVideo(const ilive::LiveVideoFrame *videoFrame
 	qDebug("callback onLocalVideo ...");
 	RealCloud_EDU_PC_DEMO *widget = (RealCloud_EDU_PC_DEMO *)customData;
 	E_VideoSrc srcType = videoFrame->desc.srcType;
-	if(srcType == VIDEO_SRC_TYPE_CAMERA){
+	if (srcType == VIDEO_SRC_TYPE_CAMERA) {
 		widget->getLocalVideoRender()->doRender(videoFrame);
 	}
 	else if (srcType == VIDEO_SRC_TYPE_SCREEN || srcType == VIDEO_SRC_TYPE_MEDIA)
@@ -564,7 +603,7 @@ void RealCloud_EDU_PC_DEMO::onRemoteVideo(const ilive::LiveVideoFrame * videoFra
 	if (srcType == VIDEO_SRC_TYPE_CAMERA) {
 		widget->getRemoteVideoRender()->doRender(videoFrame);
 	}
-	else if(srcType == VIDEO_SRC_TYPE_SCREEN || srcType == VIDEO_SRC_TYPE_MEDIA)
+	else if (srcType == VIDEO_SRC_TYPE_SCREEN || srcType == VIDEO_SRC_TYPE_MEDIA)
 	{
 		widget->getScreenShareRender()->doRender(videoFrame);
 	}
@@ -680,6 +719,7 @@ void RealCloud_EDU_PC_DEMO::onStatusChanged(bool canUndo, bool canRedo, bool can
 
 void RealCloud_EDU_PC_DEMO::onGetBoardData(bool bResult)
 {
+	updatePage();
 }
 
 void RealCloud_EDU_PC_DEMO::onUploadProgress(int percent, void * data)
@@ -688,23 +728,43 @@ void RealCloud_EDU_PC_DEMO::onUploadProgress(int percent, void * data)
 
 void RealCloud_EDU_PC_DEMO::onUploadResult(bool success, int code, std::wstring objName, std::wstring fileName, void * data)
 {
+	if (success) 
+	{
+		emit showMessage(m_userId, QString::fromLocal8Bit("上传文件成功 ..."));
+		std::wstring fileUrl = m_sdk->getTICWhiteBoardManager()->getDownloadUrl(objName);
+		m_sdk->getTICWhiteBoardManager()->getBoardSDK()->setBackgroundImage(m_userId.c_str());
+		m_whiteBoardWid->update();
+	}
+	else 
+	{
+		emit showMessage(m_userId, QString::fromLocal8Bit("上传文件失败！"));
+	}
 }
 
 void RealCloud_EDU_PC_DEMO::onFileUploadResult(bool success, std::wstring objName, std::wstring fileName, int pageCount, void * data)
 {
+	if (success)
+	{
+		emit showMessage(m_userId, QString::fromLocal8Bit("正在生成文件预览 ..."));
+	}
+	else
+	{
+		emit showMessage(m_userId, QString::fromLocal8Bit("生成预览失败！"));
+	}
 }
 
 void RealCloud_EDU_PC_DEMO::onFileInfoChanged()
 {
+	emit showMessage(m_userId, QString::fromLocal8Bit("文件内容发生改变 ..."));
 }
 
-void RealCloud_EDU_PC_DEMO::onLoginBtnClicked()
+void RealCloud_EDU_PC_DEMO::onLoginClicked()
 {
 	liveOperation = LOGIN;
 	m_sdk->login(m_userEdit->text().toStdString().c_str(), m_userToken.toStdString().c_str(), onIliveSucCallback, onIliveErrCallback, this);
 }
 
-void RealCloud_EDU_PC_DEMO::onLogoutBtnClicked()
+void RealCloud_EDU_PC_DEMO::onLogoutClicked()
 {
 	liveOperation = LOGOUT;
 	m_sdk->logout(onIliveSucCallback, onIliveErrCallback, this);
@@ -839,7 +899,7 @@ void RealCloud_EDU_PC_DEMO::onChangeScreenShareClicked()
 	int32 y1 = m_sbY1->value();
 
 	int ret = m_sdk->changeScreenShareSize(x0, y0, x1, y1);
-	if (ret != NO_ERR) 
+	if (ret != NO_ERR)
 	{
 		emit showMessage(m_userId, QString::fromLocal8Bit("更改分享区域失败"));
 		return;
@@ -863,26 +923,30 @@ void RealCloud_EDU_PC_DEMO::onCloseScreenShareClicked()
 
 void RealCloud_EDU_PC_DEMO::onCreateWhiteBoardClicked()
 {
-
-	m_sdk->initWhiteBoard(m_opt.getRoomID(), (HWND)this->winId());
-
+	m_sdk->initWhiteBoard(m_opt.getRoomID(), (HWND)m_whiteBoardContainer->winId());
 	HWND hwnd = m_sdk->getTICWhiteBoardManager()->getBoardSDK()->getRenderWindow();
 	m_whiteBoardWid = QWidget::createWindowContainer(QWindow::fromWinId((WId)hwnd));
 	m_hLayoutWhiteBoard = new QHBoxLayout();
 	m_hLayoutWhiteBoard->addWidget(m_whiteBoardWid, 1);
 	m_whiteBoardContainer->setLayout(m_hLayoutWhiteBoard);
-	m_whiteBoardContainer->update();
 
 	m_createWhiteBoardBtn->setEnabled(false);
 	m_destoryWhiteBoardBtn->setEnabled(true);
+
+	m_sdk->getTICWhiteBoardManager()->getBoardSDK()->getBoardData();
+	m_whiteBoardWid->update();
+	m_whiteBoardWid->show();
+	// 此处结束的时候，获取到的白板页数是0，必须在onGetBoardData回调函数中才能获取到初始白板的页数
 }
 
 void RealCloud_EDU_PC_DEMO::onDestoryWhiteBoardClicked()
 {
 	m_sdk->getTICWhiteBoardManager()->clearWhiteBoard();
 	m_whiteBoardWid->update();
-	delete m_hLayoutWhiteBoard;
-	m_hLayoutWhiteBoard = NULL;
+	if (m_hLayoutWhiteBoard != NULL) {
+		delete m_hLayoutWhiteBoard;
+		m_hLayoutWhiteBoard = NULL;
+	}
 
 	m_createWhiteBoardBtn->setEnabled(true);
 	m_destoryWhiteBoardBtn->setEnabled(false);
@@ -890,23 +954,43 @@ void RealCloud_EDU_PC_DEMO::onDestoryWhiteBoardClicked()
 
 void RealCloud_EDU_PC_DEMO::onAddWhiteBoardPageClicked()
 {
+	m_sdk->getTICWhiteBoardManager()->insertPage();
+	updatePage();
 }
 
 void RealCloud_EDU_PC_DEMO::onDelWhiteBoardPageClicked()
 {
+	m_sdk->getTICWhiteBoardManager()->deletePage();
+	updatePage();
 }
 
 void RealCloud_EDU_PC_DEMO::onClearWhiteBoardPageClicked()
 {
+	m_sdk->getTICWhiteBoardManager()->getBoardSDK()->clear();
 }
 
 void RealCloud_EDU_PC_DEMO::onPrePageClicked()
 {
-	//m_sdk->getTICWhiteBoardManager()->getBoardSDK()->getBoardData();
+	m_sdk->getTICWhiteBoardManager()->gotoLastPage();
+	updatePage();
 }
 
 void RealCloud_EDU_PC_DEMO::onNextPageClicked()
 {
+	m_sdk->getTICWhiteBoardManager()->gotoNextPage();
+	updatePage();
+}
+
+void RealCloud_EDU_PC_DEMO::onUploadBkFileClicked()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("选择背景文件"),
+		"", QString::fromLocal8Bit("背景文件(*.png *.jpg *.jpeg *.bmp *.ppt *.pptx *.pdf *.doc)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+
+	m_sdk->getTICWhiteBoardManager()->uploadFile(fileName.toStdWString(), nullptr);
 }
 
 void RealCloud_EDU_PC_DEMO::addMsgContent(const QString & userId, const QString & msg)
