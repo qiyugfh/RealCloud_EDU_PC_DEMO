@@ -39,7 +39,6 @@ Debug/
 Release/
 *.VC.db
 *VC.VC.opendb
-*.vcxproj
 *.vcxproj.*
 *.vs
 *.opendb
