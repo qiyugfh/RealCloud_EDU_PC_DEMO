@@ -39,7 +39,7 @@ Debug/
 Release/
 *.VC.db
 *VC.VC.opendb
-*.vcxproj.*
+*.vcxproj.user
 *.vs
 *.opendb
 *.log
